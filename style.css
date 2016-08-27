@@ -1,0 +1,38 @@
+.volumes-table tr:active {
+    color: inherit !important;
+    background: inherit !important;
+}
+
+.volumes-table.table-striped tr:nth-child(even):active {
+    background: #f5f5f4 !important;
+}
+
+.volumes-table input {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    width: 100%;
+}
+
+.volumes-table td {
+    padding: 0 15px;
+}
+
+.volumes-table input {
+    width: 100%;
+    border: 0;
+    padding: 3px 4px;
+    text-overflow: ellipsis;
+}
+
+td.volumes-table-source {
+    width: 70%;
+}
+
+td.volumes-table-dest {
+    width: 30%;
+}
+
+.volumes-table input:focus {
+    outline: -webkit-focus-ring-color solid 2px;
+}
