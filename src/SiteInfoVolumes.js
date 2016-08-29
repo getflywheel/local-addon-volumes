@@ -6,6 +6,8 @@ module.exports = function (context) {
 	const React = context.React;
 	const $ = context.jQuery;
 	const docker = context.docker;
+	const {remote} = context.electron;
+	const dialog = remote.dialog;
 
 	return class SiteInfoVolumes extends Component {
 		constructor(props) {
@@ -20,6 +22,7 @@ module.exports = function (context) {
 			this.inspectContainer = this.inspectContainer.bind(this);
 			this.stylesheetPath = path.resolve(__dirname, '../style.css');
 			this.newVolumeKeyDown = this.newVolumeKeyDown.bind(this);
+			this.removeVolume = this.removeVolume.bind(this);
 		}
 
 		componentDidMount() {
@@ -115,6 +118,25 @@ module.exports = function (context) {
 
 		}
 
+		removeVolume(index) {
+
+			let choice = dialog.showMessageBox(remote.getCurrentWindow(), {
+				type: 'question',
+				buttons: ['Yes', 'No'],
+				title: 'Confirm',
+				message: `Are you sure you want to remove this volume? This may cause your site to not function properly.`
+			});
+
+			if ( choice !== 0 ) {
+				return;
+			}
+
+			this.setState({
+				volumes: this.state.volumes.filter((_, i) => i !== index)
+			});
+
+		}
+
 		render() {
 
 			return (
@@ -124,7 +146,7 @@ module.exports = function (context) {
 						<thead>
 						<tr>
 							<th>Host Source</th>
-							<th>Container Destination</th>
+							<th colSpan="2">Container Destination</th>
 						</tr>
 						</thead>
 						<tbody>
@@ -143,6 +165,9 @@ module.exports = function (context) {
 									                                          ref={`${ref}-dest`}
 									                                          onChange={this.volumeOnChange.bind(this, 'dest', index)}/>
 									</td>
+									<td>
+										<span className="icon icon-cancel-circled" onClick={this.removeVolume.bind(this, index)}></span>
+									</td>
 								</tr>
 							})
 						}
@@ -151,6 +176,9 @@ module.exports = function (context) {
 							           onKeyDown={this.newVolumeKeyDown}/></td>
 							<td><input type="text" id="add-container-dest" placeholder="Add Container Destination"
 							           onKeyDown={this.newVolumeKeyDown}/></td>
+							<td style={{pointerEvents: 'none', opacity: '0'}}>
+								<span className="icon icon-cancel-circled"></span>
+							</td>
 						</tr>
 						</tbody>
 					</table>
