@@ -1,36 +1,38 @@
 {
-	"name": "pressmatic-addon-volumes",
-	"productName": "Volumes Manager",
-	"version": "1.0.0",
-	"author": "Pressmatic, Inc.",
-	"contributors": [{
-		"name": "Clay Griffiths",
-		"email": "clay@claygriffiths.com"
-	}],
-	"keywords": [
-		"pressmatic-addon"
-	],
-	"description": "Mount additional directories for your Pressmatic sites.",
-	"renderer": "lib/renderer.js",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/pressmatic/pressmatic-addon-volumes"
-	},
-	"bugs": {
-		"url": "https://github.com/pressmatic/pressmatic-addon-volumes/issues"
-	},
-	"license": "MIT",
-	"scripts": {
-		"build": "babel src -d lib"
-	},
-	"devDependencies": {
-		"babel-cli": "^6.14.0",
-		"babel-preset-es2015": "^6.14.0",
-		"babel-preset-react": "^6.11.1",
-		"babel-preset-stage-0": "^6.5.0"
-	},
-	"dependencies": {},
-	"engines": {
-		"pressmatic": "^1.1.0"
-	}
+  "name": "pressmatic-addon-volumes",
+  "productName": "Volumes Manager",
+  "version": "1.0.0",
+  "author": "Pressmatic, Inc.",
+  "contributors": [
+    {
+      "name": "Clay Griffiths",
+      "email": "clay@claygriffiths.com"
+    }
+  ],
+  "keywords": [
+    "pressmatic-addon"
+  ],
+  "description": "Mount additional directories for your Pressmatic sites.",
+  "renderer": "lib/renderer.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pressmatic/pressmatic-addon-volumes"
+  },
+  "bugs": {
+    "url": "https://github.com/pressmatic/pressmatic-addon-volumes/issues"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "babel src -d lib"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.14.0",
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-react": "^6.11.1",
+    "babel-preset-stage-0": "^6.5.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "pressmatic": "^1.1.0"
+  }
 }

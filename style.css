@@ -1,3 +1,21 @@
+.volumes-container {
+    position: relative;
+    flex: 1;
+}
+
+.volumes-container .form-actions {
+    bottom: 0;
+    position: absolute;
+}
+
+.volumes-table {
+    position: absolute;
+    top: 0;
+    display: block;
+    bottom: 53px;
+    overflow-y: auto;
+}
+
 .volumes-table tr:active {
     color: inherit !important;
     background: inherit !important;
@@ -25,8 +43,28 @@
     text-overflow: ellipsis;
 }
 
+.volumes-table .icon-cancel-circled {
+    color: #999;
+}
+
 td.volumes-table-source {
     width: 70%;
+}
+
+td.volumes-table-source input {
+    padding-right: 30px;
+}
+
+td.volumes-table-source {
+    position: relative;
+}
+
+td.volumes-table-source .icon {
+    position: absolute;
+    right: 22px;
+    top: 3px;
+    color: #999;
+    display: block;
 }
 
 td.volumes-table-dest {

@@ -9,6 +9,11 @@ module.exports = function (context) {
 	const {remote} = context.electron;
 	const dialog = remote.dialog;
 
+	const pressmaticPath = remote.app.getAppPath();
+
+	const siteData = remote.require(path.join(pressmaticPath, './helpers/site-data'));
+	const startSite = remote.require(path.join(pressmaticPath, './main/actions-sites/startSite'));
+
 	return class SiteInfoVolumes extends Component {
 		constructor(props) {
 			super(props);
@@ -23,6 +28,8 @@ module.exports = function (context) {
 			this.stylesheetPath = path.resolve(__dirname, '../style.css');
 			this.newVolumeKeyDown = this.newVolumeKeyDown.bind(this);
 			this.removeVolume = this.removeVolume.bind(this);
+			this.openFolderDialog = this.openFolderDialog.bind(this);
+			this.apply = this.apply.bind(this);
 		}
 
 		componentDidMount() {
@@ -64,7 +71,7 @@ module.exports = function (context) {
 				});
 
 				this.setState({
-					path: containerInfo.path,
+					path: containerInfo.Path,
 					ports: containerPorts,
 					volumes: containerVolumes
 				});
@@ -113,7 +120,8 @@ module.exports = function (context) {
 			volumes[index][input] = event.target.value;
 
 			this.setState({
-				volumes
+				volumes,
+				isChanged: true
 			});
 
 		}
@@ -127,12 +135,106 @@ module.exports = function (context) {
 				message: `Are you sure you want to remove this volume? This may cause your site to not function properly.`
 			});
 
-			if ( choice !== 0 ) {
+			if (choice !== 0) {
 				return;
 			}
 
 			this.setState({
-				volumes: this.state.volumes.filter((_, i) => i !== index)
+				volumes: this.state.volumes.filter((_, i) => i !== index),
+				isChanged: true
+			});
+
+		}
+
+		openFolderDialog(index) {
+
+			let dialogResult = dialog.showOpenDialog(remote.getCurrentWindow(), {properties: ['createDirectory', 'openDirectory', 'openFile']});
+			let volumes = this.state.volumes;
+
+			if ( dialogResult ) {
+
+				if ( isNaN(index) ) {
+
+					volumes.push({
+						source: dialogResult[0],
+						dest: ''
+					});
+
+				} else {
+
+					volumes[index].source = dialogResult[0];
+
+				}
+
+				this.setState({
+					volumes,
+					isChanged: true
+				});
+
+			}
+
+		}
+
+		apply() {
+
+			let siteID = this.props.params.siteID;
+			let site = this.props.sites[siteID];
+			let imageID;
+
+			let choice = dialog.showMessageBox(remote.getCurrentWindow(), {
+				type: 'question',
+				buttons: ['Cancel', 'Re-map Volumes'],
+				title: 'Confirm',
+				message: `Are you sure you want to re-map the volumes for this site? There may be inadvertent effects if volumes aren't mapped correctly.
+
+Last but not least, make sure you have an up-to-date backup.`
+			});
+
+			if (choice === 0) {
+				return;
+			}
+
+			docker(`commit ${site.container}`).then(stdout => {
+
+				imageID = stdout.trim();
+
+				let portsStr = ``;
+				let volumeMappingsStr = ``;
+
+				this.state.ports.forEach(port => {
+					portsStr += ` -p ${port.hostPort}:${port.containerPort}`
+				});
+
+				this.state.volumes.forEach(volume => {
+					volumeMappingsStr += ` -v "${volume.source}":"${volume.dest}"`
+				});
+
+				docker(`kill ${site.container}`).then(stdout => {
+
+					docker(`run -itd ${portsStr.trim()} ${volumeMappingsStr.trim()} ${imageID} ${this.state.path}`).then((stdout) => {
+
+						let site = siteData.getSite(siteID);
+
+						site.container = stdout.trim();
+
+						if ( 'duplicateImage' in site ) {
+							if ( typeof site.duplicateImage != 'string' ) {
+								site.duplicateImage.push(imageID);
+							} else {
+								site.duplicateImage = [site.duplicateImage, imageID];
+							}
+						} else {
+							site.duplicateImage = imageID;
+						}
+
+						siteData.updateSite(siteID, site);
+
+						startSite(site);
+
+					});
+
+				});
+
 			});
 
 		}
@@ -140,13 +242,14 @@ module.exports = function (context) {
 		render() {
 
 			return (
-				<div>
+				<div className="volumes-container">
 					<link rel="stylesheet" href={this.stylesheetPath}/>
 					<table className="table-striped volumes-table">
 						<thead>
 						<tr>
 							<th>Host Source</th>
-							<th colSpan="2">Container Destination</th>
+							<th>Container Destination</th>
+							<th></th>
 						</tr>
 						</thead>
 						<tbody>
@@ -159,6 +262,7 @@ module.exports = function (context) {
 									                                            placeholder="Host Source"
 									                                            ref={`${ref}-source`}
 									                                            onChange={this.volumeOnChange.bind(this, 'source', index)}/>
+										<span className="icon icon-folder" onClick={this.openFolderDialog.bind(this, index)}></span>
 									</td>
 									<td className="volumes-table-dest"><input type="text" value={volume.dest}
 									                                          placeholder="Container Destination"
@@ -166,22 +270,31 @@ module.exports = function (context) {
 									                                          onChange={this.volumeOnChange.bind(this, 'dest', index)}/>
 									</td>
 									<td>
-										<span className="icon icon-cancel-circled" onClick={this.removeVolume.bind(this, index)}></span>
+										<span className="icon icon-cancel-circled"
+										      onClick={this.removeVolume.bind(this, index)}></span>
 									</td>
 								</tr>
 							})
 						}
 						<tr>
-							<td><input type="text" id="add-host-source" placeholder="Add Host Source"
-							           onKeyDown={this.newVolumeKeyDown}/></td>
-							<td><input type="text" id="add-container-dest" placeholder="Add Container Destination"
-							           onKeyDown={this.newVolumeKeyDown}/></td>
-							<td style={{pointerEvents: 'none', opacity: '0'}}>
-								<span className="icon icon-cancel-circled"></span>
+							<td className="volumes-table-source">
+								<input type="text" id="add-host-source" placeholder="Add Host Source"
+							           onKeyDown={this.newVolumeKeyDown}/>
+								<span className="icon icon-folder" onClick={this.openFolderDialog.bind(this, 'new')}></span>
+							</td>
+							<td className="volumes-table-dest">
+								<input type="text" id="add-container-dest" placeholder="Add Container Destination"
+							           onKeyDown={this.newVolumeKeyDown}/>
+							</td>
+							<td>
 							</td>
 						</tr>
 						</tbody>
 					</table>
+
+					<div className="form-actions">
+						<button className="btn btn-form btn-primary btn-right" ref="apply" disabled={!this.state.isChanged} onClick={this.apply}>Apply</button>
+					</div>
 				</div>
 			);
 
