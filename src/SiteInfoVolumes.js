@@ -14,6 +14,7 @@ module.exports = function (context) {
 
 	const siteData = remote.require(path.join(pressmaticPath, './helpers/site-data'));
 	const startSite = remote.require(path.join(pressmaticPath, './main/actions-sites/startSite'));
+	const formatHomePath = remote.require('./helpers/format-home-path');
 
 	return class SiteInfoVolumes extends Component {
 		constructor(props) {
@@ -154,13 +155,13 @@ module.exports = function (context) {
 			let dialogResult = dialog.showOpenDialog(remote.getCurrentWindow(), {properties: ['createDirectory', 'openDirectory', 'openFile']});
 			let volumes = this.state.volumes;
 
-			if ( dialogResult ) {
+			if (dialogResult) {
 
-				if ( dialogResult[0].indexOf('/Users') !== 0 ) {
+				if (dialogResult[0].indexOf('/Users') !== 0) {
 					return dialog.showErrorBox('Error', 'Sorry! You must provide a path in /Users.');
 				}
 
-				if ( isNaN(index) ) {
+				if (isNaN(index)) {
 
 					volumes.push({
 						source: dialogResult[0],
@@ -187,6 +188,29 @@ module.exports = function (context) {
 			let siteID = this.props.params.siteID;
 			let site = this.props.sites[siteID];
 			let imageID;
+			let errors = [];
+
+			this.state.volumes.forEach(volume => {
+
+				if ( !volume.source.trim() || !volume.dest.trim() ) {
+					return errors.push('Empty source or destination.');
+				}
+
+				if ( volume.source.indexOf('/') !== 0 || volume.dest.indexOf('/') !== 0 ) {
+					return errors.push('Path does not start with slash.');
+				}
+
+			});
+
+			if ( errors.length ) {
+
+				return dialog.showErrorBox('Invalid Paths Provided', `Sorry! There were invalid paths provided.
+				
+Please ensure that all paths have a valid source and destination.
+
+Also, all paths must begin with either /Users or /Volumes.`);
+
+			}
 
 			let choice = dialog.showMessageBox(remote.getCurrentWindow(), {
 				type: 'question',
@@ -223,7 +247,7 @@ There is no going back after this is done.`
 				});
 
 				this.state.volumes.forEach(volume => {
-					volumeMappingsStr += ` -v "${volume.source}":"${volume.dest}"`
+					volumeMappingsStr += ` -v "${formatHomePath(volume.source)}":"${volume.dest}"`
 				});
 
 				docker(`kill ${site.container}`).then(stdout => {
@@ -232,8 +256,8 @@ There is no going back after this is done.`
 
 						site.container = stdout.trim();
 
-						if ( 'duplicateImage' in site ) {
-							if ( typeof site.duplicateImage != 'string' ) {
+						if ('duplicateImage' in site) {
+							if (typeof site.duplicateImage != 'string') {
 								site.duplicateImage.push(imageID);
 							} else {
 								site.duplicateImage = [site.duplicateImage, imageID];
@@ -268,6 +292,18 @@ There is no going back after this is done.`
 
 		}
 
+		formatSource(index) {
+
+			let volumes = this.state.volumes;
+
+			volumes[index]['source'] = formatHomePath(volumes[index]['source']);
+
+			this.setState({
+				volumes
+			});
+
+		}
+
 		render() {
 
 			return (
@@ -290,8 +326,10 @@ There is no going back after this is done.`
 									<td className="volumes-table-source"><input type="text" value={volume.source}
 									                                            placeholder="Host Source"
 									                                            ref={`${ref}-source`}
-									                                            onChange={this.volumeOnChange.bind(this, 'source', index)}/>
-										<span className="icon icon-folder" onClick={this.openFolderDialog.bind(this, index)}></span>
+									                                            onChange={this.volumeOnChange.bind(this, 'source', index)}
+									                                            onBlur={this.formatSource.bind(this, index)}/>
+										<span className="icon icon-folder"
+										      onClick={this.openFolderDialog.bind(this, index)}></span>
 									</td>
 									<td className="volumes-table-dest"><input type="text" value={volume.dest}
 									                                          placeholder="Container Destination"
@@ -308,12 +346,13 @@ There is no going back after this is done.`
 						<tr>
 							<td className="volumes-table-source">
 								<input type="text" id="add-host-source" placeholder="Add Host Source"
-							           onKeyDown={this.newVolumeKeyDown}/>
-								<span className="icon icon-folder" onClick={this.openFolderDialog.bind(this, 'new')}></span>
+								       onKeyDown={this.newVolumeKeyDown}/>
+								<span className="icon icon-folder"
+								      onClick={this.openFolderDialog.bind(this, 'new')}></span>
 							</td>
 							<td className="volumes-table-dest">
 								<input type="text" id="add-container-dest" placeholder="Add Container Destination"
-							           onKeyDown={this.newVolumeKeyDown}/>
+								       onKeyDown={this.newVolumeKeyDown}/>
 							</td>
 							<td>
 							</td>
@@ -322,7 +361,8 @@ There is no going back after this is done.`
 					</table>
 
 					<div className="form-actions">
-						<button className="btn btn-form btn-primary btn-right" disabled={!this.state.isChanged || this.state.provisioning} onClick={this.remapVolumes}>
+						<button className="btn btn-form btn-primary btn-right"
+						        disabled={!this.state.isChanged || this.state.provisioning} onClick={this.remapVolumes}>
 							{this.state.provisioning ? 'Remapping Volumes...' : 'Remap Volumes'}
 						</button>
 					</div>
