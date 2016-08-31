@@ -8,6 +8,7 @@ module.exports = function (context) {
 	const docker = context.docker;
 	const {remote} = context.electron;
 	const dialog = remote.dialog;
+	const sendEvent = context.events.send;
 
 	const pressmaticPath = remote.app.getAppPath();
 
@@ -21,7 +22,9 @@ module.exports = function (context) {
 			this.state = {
 				volumes: [],
 				ports: [],
-				path: null
+				path: null,
+				provisioning: false,
+				isChanged: false
 			};
 
 			this.inspectContainer = this.inspectContainer.bind(this);
@@ -29,7 +32,7 @@ module.exports = function (context) {
 			this.newVolumeKeyDown = this.newVolumeKeyDown.bind(this);
 			this.removeVolume = this.removeVolume.bind(this);
 			this.openFolderDialog = this.openFolderDialog.bind(this);
-			this.apply = this.apply.bind(this);
+			this.remapVolumes = this.remapVolumes.bind(this);
 		}
 
 		componentDidMount() {
@@ -153,6 +156,10 @@ module.exports = function (context) {
 
 			if ( dialogResult ) {
 
+				if ( dialogResult[0].indexOf('/Users') !== 0 ) {
+					return dialog.showErrorBox('Error', 'Sorry! You must provide a path in /Users.');
+				}
+
 				if ( isNaN(index) ) {
 
 					volumes.push({
@@ -175,7 +182,7 @@ module.exports = function (context) {
 
 		}
 
-		apply() {
+		remapVolumes() {
 
 			let siteID = this.props.params.siteID;
 			let site = this.props.sites[siteID];
@@ -183,16 +190,25 @@ module.exports = function (context) {
 
 			let choice = dialog.showMessageBox(remote.getCurrentWindow(), {
 				type: 'question',
-				buttons: ['Cancel', 'Re-map Volumes'],
+				buttons: ['Cancel', 'Remap Volumes'],
 				title: 'Confirm',
-				message: `Are you sure you want to re-map the volumes for this site? There may be inadvertent effects if volumes aren't mapped correctly.
+				message: `Are you sure you want to remap the volumes for this site? There may be inadvertent effects if volumes aren't mapped correctly.
 
-Last but not least, make sure you have an up-to-date backup.`
+Last but not least, make sure you have an up-to-date backup. 
+
+There is no going back after this is done.`
 			});
 
 			if (choice === 0) {
 				return;
 			}
+
+			this.setState({
+				isChanged: false,
+				provisioning: true
+			});
+
+			sendEvent('updateSiteStatus', siteID, 'provisioning');
 
 			docker(`commit ${site.container}`).then(stdout => {
 
@@ -200,6 +216,7 @@ Last but not least, make sure you have an up-to-date backup.`
 
 				let portsStr = ``;
 				let volumeMappingsStr = ``;
+				let oldSiteContainer = site.container;
 
 				this.state.ports.forEach(port => {
 					portsStr += ` -p ${port.hostPort}:${port.containerPort}`
@@ -212,8 +229,6 @@ Last but not least, make sure you have an up-to-date backup.`
 				docker(`kill ${site.container}`).then(stdout => {
 
 					docker(`run -itd ${portsStr.trim()} ${volumeMappingsStr.trim()} ${imageID} ${this.state.path}`).then((stdout) => {
-
-						let site = siteData.getSite(siteID);
 
 						site.container = stdout.trim();
 
@@ -229,7 +244,21 @@ Last but not least, make sure you have an up-to-date backup.`
 
 						siteData.updateSite(siteID, site);
 
-						startSite(site);
+						startSite(site).then(() => {
+							sendEvent('updateSiteStatus', siteID, 'running');
+
+							this.setState({
+								provisioning: false
+							});
+
+							context.notifier.notify({
+								title: 'Volumes Remapped',
+								message: `Volumes for ${site.name} have been remapped.`
+							});
+
+						});
+
+						docker(`rm ${oldSiteContainer}`);
 
 					});
 
@@ -293,7 +322,9 @@ Last but not least, make sure you have an up-to-date backup.`
 					</table>
 
 					<div className="form-actions">
-						<button className="btn btn-form btn-primary btn-right" ref="apply" disabled={!this.state.isChanged} onClick={this.apply}>Apply</button>
+						<button className="btn btn-form btn-primary btn-right" disabled={!this.state.isChanged || this.state.provisioning} onClick={this.remapVolumes}>
+							{this.state.provisioning ? 'Remapping Volumes...' : 'Remap Volumes'}
+						</button>
 					</div>
 				</div>
 			);
