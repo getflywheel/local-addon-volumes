@@ -200,6 +200,10 @@ module.exports = function (context) {
 					return errors.push('Path does not start with slash.');
 				}
 
+				if ( formatHomePath(volume.source).indexOf('/Users') !== 0 && formatHomePath(volume.source).indexOf('/Volumes') !== 0 ) {
+					return errors.push('Path does not start with /Users or /Volumes');
+				}
+
 			});
 
 			if ( errors.length ) {
@@ -208,7 +212,7 @@ module.exports = function (context) {
 				
 Please ensure that all paths have a valid source and destination.
 
-Also, all paths must begin with either /Users or /Volumes.`);
+Also, all source paths must begin with either /Users or /Volumes.`);
 
 			}
 
