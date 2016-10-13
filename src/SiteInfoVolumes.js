@@ -22,7 +22,6 @@ module.exports = function (context) {
 
 			this.state = {
 				volumes: [],
-				ports: [],
 				path: null,
 				provisioning: false,
 				isChanged: false
@@ -60,24 +59,58 @@ module.exports = function (context) {
 
 				let containerInfo = parsedOutput[0];
 				let containerVolumes = [];
-				let containerPorts = [];
 
 				containerInfo.Mounts.forEach(mount => {
 					containerVolumes.push({source: mount.Source, dest: mount.Destination});
 				});
 
-				Object.keys(containerInfo.NetworkSettings.Ports).forEach(port => {
-
-					let portInfo = containerInfo.NetworkSettings.Ports[port][0];
-
-					containerPorts.push({hostPort: portInfo.HostPort, containerPort: port.replace('/tcp', '')});
-
-				});
 
 				this.setState({
 					path: containerInfo.Path,
-					ports: containerPorts,
 					volumes: containerVolumes
+				});
+
+			});
+
+		}
+
+		getPorts() {
+
+			return new Promise((resolve) => {
+
+				let siteID = this.props.params.siteID;
+				let site = this.props.sites[siteID];
+
+				docker(`inspect ${site.container}`).then(stdout => {
+
+					let parsedOutput;
+
+					try {
+						parsedOutput = JSON.parse(stdout);
+					} catch (e) {
+						console.error(e);
+						return false;
+					}
+
+					let containerInfo = parsedOutput[0];
+					let containerPorts = [];
+
+					try {
+
+						Object.keys(containerInfo.NetworkSettings.Ports).forEach(port => {
+
+							let portInfo = containerInfo.NetworkSettings.Ports[port][0];
+
+							containerPorts.push({hostPort: portInfo.HostPort, containerPort: port.replace('/tcp', '')});
+
+						});
+
+					} catch ( e ) {
+						console.warn(e);
+					}
+
+					resolve(containerPorts);
+
 				});
 
 			});
@@ -246,47 +279,51 @@ There is no going back after this is done.`
 				let volumeMappingsStr = ``;
 				let oldSiteContainer = site.container;
 
-				this.state.ports.forEach(port => {
-					portsStr += ` -p ${port.hostPort}:${port.containerPort}`
-				});
+				this.getPorts().then(ports => {
 
-				this.state.volumes.forEach(volume => {
-					volumeMappingsStr += ` -v "${formatHomePath(volume.source)}":"${volume.dest}"`
-				});
+					ports.forEach(port => {
+						portsStr += ` -p ${port.hostPort}:${port.containerPort}`
+					});
 
-				docker(`kill ${site.container}`).then(stdout => {
+					this.state.volumes.forEach(volume => {
+						volumeMappingsStr += ` -v "${formatHomePath(volume.source)}":"${volume.dest}"`
+					});
 
-					docker(`run -itd ${portsStr.trim()} ${volumeMappingsStr.trim()} ${imageID} ${this.state.path}`).then((stdout) => {
+					docker(`kill ${site.container}`).then(stdout => {
 
-						site.container = stdout.trim();
+						docker(`run -itd ${portsStr.trim()} ${volumeMappingsStr.trim()} ${imageID} ${this.state.path}`).then((stdout) => {
 
-						if ('duplicateImage' in site) {
-							if (typeof site.duplicateImage != 'string') {
-								site.duplicateImage.push(imageID);
+							site.container = stdout.trim();
+
+							if ('duplicateImage' in site) {
+								if (typeof site.duplicateImage != 'string') {
+									site.duplicateImage.push(imageID);
+								} else {
+									site.duplicateImage = [site.duplicateImage, imageID];
+								}
 							} else {
-								site.duplicateImage = [site.duplicateImage, imageID];
+								site.duplicateImage = imageID;
 							}
-						} else {
-							site.duplicateImage = imageID;
-						}
 
-						siteData.updateSite(siteID, site);
+							siteData.updateSite(siteID, site);
 
-						startSite(site).then(() => {
-							sendEvent('updateSiteStatus', siteID, 'running');
+							startSite(site).then(() => {
+								sendEvent('updateSiteStatus', siteID, 'running');
 
-							this.setState({
-								provisioning: false
+								this.setState({
+									provisioning: false
+								});
+
+								context.notifier.notify({
+									title: 'Volumes Remapped',
+									message: `Volumes for ${site.name} have been remapped.`
+								});
+
 							});
 
-							context.notifier.notify({
-								title: 'Volumes Remapped',
-								message: `Volumes for ${site.name} have been remapped.`
-							});
+							docker(`rm ${oldSiteContainer}`);
 
 						});
-
-						docker(`rm ${oldSiteContainer}`);
 
 					});
 
@@ -366,8 +403,8 @@ There is no going back after this is done.`
 
 					<div className="form-actions">
 						<button className="btn btn-form btn-primary btn-right"
-						        disabled={!this.state.isChanged || this.state.provisioning} onClick={this.remapVolumes}>
-							{this.state.provisioning ? 'Remapping Volumes...' : 'Remap Volumes'}
+						        disabled={!this.state.isChanged || this.state.provisioning || this.props.siteStatus != 'running'} onClick={this.remapVolumes}>
+							{this.state.provisioning ? 'Remapping Volumes...' : this.props.siteStatus == 'running' ? 'Remap Volumes' : 'Start Site to Remap Volumes'}
 						</button>
 					</div>
 				</div>
