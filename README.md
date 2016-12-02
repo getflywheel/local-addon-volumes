@@ -1,30 +1,26 @@
-# Synopsis [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/pressmatic/pressmatic-addon-volumes/pulls/)
+# Synopsis [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/getflywheel/local-addon-volumes/pulls/)
 
-Addon for [Pressmatic](https://pressmatic.io) to mount additional directories for your Pressmatic sites.
+github.com/getflywheel/local-addon-volumes
 
-![Pressmatic Addon: Volumes Screenshot](/screenshot.png?raw=true)
+![Local Addon: Volumes Screenshot](/screenshot.png?raw=true)
 
 ## Installation
 
 ### Downloading a Release
 
-1. Download the [latest release](https://github.com/pressmatic/pressmatic-addon-volumes/releases)
-2. Go to Settings » Addons inside Pressmatic (1.1.0 or newer) and click on Install Addon
+1. Download the [latest release](https://github.com/getflywheel/local-addon-volumes/releases)
+2. Go to Settings » Add-ons inside Local (1.1.0 or newer) and click on Install Add-on
 3. Browse to the downloaded release
 4. Check the checkbox by the Volumes addon to enable it
-5. Restart Pressmatic
+5. Restart Local
 
 ### Cloning
 
 Place the repository into the following directory depending on your platform:
 
-- macOS: `~/Library/Application Support/Pressmatic/addons`
+- macOS: `~/Library/Application Support/Local by Flywheel/addons`
 
 ## Developing
-
-### Pressmatic Addon API
-
-This addon interfaces with Pressmatic using the [Pressmatic Addon API](https://pressmatic.gitbooks.io/addon-api/content/).
 
 ### Installing Dev Dependencies
 `npm install`

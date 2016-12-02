@@ -10,10 +10,10 @@ module.exports = function (context) {
 	const dialog = remote.dialog;
 	const sendEvent = context.events.send;
 
-	const pressmaticPath = remote.app.getAppPath();
+	const localPath = remote.app.getAppPath();
 
-	const siteData = remote.require(path.join(pressmaticPath, './helpers/site-data'));
-	const startSite = remote.require(path.join(pressmaticPath, './main/actions-sites/startSite'));
+	const siteData = remote.require(path.join(localPath, './helpers/site-data'));
+	const startSite = remote.require(path.join(localPath, './main/actions-sites/startSite'));
 	const formatHomePath = remote.require('./helpers/format-home-path');
 
 	return class SiteInfoVolumes extends Component {

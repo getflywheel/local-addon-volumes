@@ -1,25 +1,19 @@
 {
-  "name": "pressmatic-addon-volumes",
+  "name": "local-addon-volumes",
   "productName": "Volumes Manager",
   "version": "1.0.1",
-  "author": "Pressmatic, Inc.",
-  "contributors": [
-    {
-      "name": "Clay Griffiths",
-      "email": "clay@claygriffiths.com"
-    }
-  ],
+  "author": "Fancy Chap, Inc.",
   "keywords": [
-    "pressmatic-addon"
+    "local-addon"
   ],
-  "description": "Mount additional directories for your Pressmatic sites.",
+  "description": "Mount additional directories for your sites in Local by Flywheel.",
   "renderer": "lib/renderer.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pressmatic/pressmatic-addon-volumes"
+    "url": "https://github.com/getflywheel/local-addon-volumes"
   },
   "bugs": {
-    "url": "https://github.com/pressmatic/pressmatic-addon-volumes/issues"
+    "url": "https://github.com/getflywheel/local-addon-volumes/issues"
   },
   "license": "MIT",
   "scripts": {
@@ -33,6 +27,6 @@
   },
   "dependencies": {},
   "engines": {
-    "pressmatic": "^1.1.0"
+    "local-by-flywheel": "^1.1.0"
   }
 }
