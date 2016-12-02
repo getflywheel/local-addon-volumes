@@ -1,7 +1,5 @@
 # Synopsis [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/getflywheel/local-addon-volumes/pulls/)
 
-github.com/getflywheel/local-addon-volumes
-
 ![Local Addon: Volumes Screenshot](/screenshot.png?raw=true)
 
 ## Installation
