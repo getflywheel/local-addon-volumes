@@ -1,7 +1,7 @@
 {
   "name": "local-addon-volumes",
   "productName": "Volumes Manager",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "author": "Fancy Chap, Inc.",
   "keywords": [
     "local-addon"
