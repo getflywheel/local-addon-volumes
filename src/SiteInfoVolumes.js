@@ -4,7 +4,7 @@ module.exports = function (context) {
 
 	const Component = context.React.Component;
 	const React = context.React;
-	const docker = context.docker;
+	const docker = context.docker.docker;
 	const {remote} = context.electron;
 	const dialog = remote.dialog;
 	const sendEvent = context.events.send;
