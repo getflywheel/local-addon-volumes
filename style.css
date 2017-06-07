@@ -1,76 +1,67 @@
-.volumes-container {
-    position: relative;
+.VolumesContainer {
     flex: 1;
-}
-
-.volumes-container .form-actions {
-    bottom: 0;
-    position: absolute;
-}
-
-.volumes-table {
-    position: absolute;
-    top: 0;
-    display: block;
-    bottom: 53px;
     overflow-y: auto;
 }
 
-.volumes-table tr:active {
-    color: inherit !important;
-    background: inherit !important;
+.VolumesContainer .TableList {
+    display: table;
 }
 
-.volumes-table.table-striped tr:nth-child(even):active {
-    background: #f5f5f4 !important;
+.VolumesContainer .TableListRow {
+    line-height: 50px;
 }
 
-.volumes-table input {
+.VolumesContainer .TableList input {
+    width: 100% !important;
+}
+
+.VolumesContainer .TableListRow div:nth-of-type(1),
+.VolumesContainer .TableListRow div:nth-of-type(2) {
+    width: 46%;
+    padding: 0 0 0 30px;
+}
+
+.VolumesContainer .TableListRow div:last-of-type {
+    width: 8%;
+    text-align: center;
     padding: 0;
-    border: 0;
-    background: transparent;
-    width: 100%;
 }
 
-.volumes-table td {
-    padding: 0 15px;
-}
-
-.volumes-table input {
-    width: 100%;
-    border: 0;
-    padding: 3px 4px;
-    text-overflow: ellipsis;
-}
-
-.volumes-table .icon-cancel-circled {
-    color: #999;
-}
-
-td.volumes-table-source {
-    width: 70%;
-}
-
-td.volumes-table-source input {
-    padding-right: 30px;
-}
-
-td.volumes-table-source {
+.VolumesContainer .TableListRow div:nth-of-type(1) {
     position: relative;
 }
 
-td.volumes-table-source .icon {
+.VolumesContainer .TableListRow div:nth-of-type(1) input {
+    padding-right: 75px !important;
+    text-overflow: ellipsis;
+}
+
+.VolumesContainer .OpenFolder {
     position: absolute;
-    right: 22px;
-    top: 3px;
-    color: #999;
-    display: block;
+    height: 32px;
+    cursor: pointer;
+    right: 10px;
 }
 
-td.volumes-table-dest {
-    width: 30%;
+.VolumesContainer .RemoveVolume,
+.VolumesContainer .RemoveVolume * {
+    cursor: pointer;
 }
 
-.volumes-table input:focus {
-    outline: -webkit-focus-ring-color solid 2px;
+.VolumesContainer .RemoveVolume svg {
+    vertical-align: middle;
+    width: 12px;
+}
+
+.VolumesContainer .RemoveVolume svg path {
+    fill: #c7c4c4;
+}
+
+.VolumesContainer .RemoveVolume:hover svg path {
+    fill: #9f9c9c;
+}
+
+.VolumesContainer .Bottom {
+    text-align: center;
+    margin: 15px 0 20px;
 }

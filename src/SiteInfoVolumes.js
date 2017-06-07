@@ -16,7 +16,7 @@ module.exports = function (context) {
 	const formatHomePath = remote.require('./helpers/format-home-path');
 
 	return class SiteInfoVolumes extends Component {
-		constructor(props) {
+		constructor (props) {
 			super(props);
 
 			this.state = {
@@ -34,13 +34,13 @@ module.exports = function (context) {
 			this.remapVolumes = this.remapVolumes.bind(this);
 		}
 
-		componentDidMount() {
+		componentDidMount () {
 
 			this.inspectContainer();
 
 		}
 
-		inspectContainer() {
+		inspectContainer () {
 
 			let siteID = this.props.params.siteID;
 			let site = this.props.sites[siteID];
@@ -63,7 +63,7 @@ module.exports = function (context) {
 
 		}
 
-		getPorts() {
+		getPorts () {
 
 			return new Promise((resolve) => {
 
@@ -84,7 +84,7 @@ module.exports = function (context) {
 
 						});
 
-					} catch ( e ) {
+					} catch (e) {
 						console.warn(e);
 					}
 
@@ -96,7 +96,7 @@ module.exports = function (context) {
 
 		}
 
-		newVolumeKeyDown(event) {
+		newVolumeKeyDown (event) {
 
 			let volumes = this.state.volumes;
 
@@ -129,7 +129,7 @@ module.exports = function (context) {
 
 		}
 
-		volumeOnChange(input, index, event) {
+		volumeOnChange (input, index, event) {
 
 			let volumes = this.state.volumes;
 
@@ -142,7 +142,7 @@ module.exports = function (context) {
 
 		}
 
-		removeVolume(index) {
+		removeVolume (index) {
 
 			let choice = dialog.showMessageBox(remote.getCurrentWindow(), {
 				type: 'question',
@@ -162,7 +162,7 @@ module.exports = function (context) {
 
 		}
 
-		openFolderDialog(index) {
+		openFolderDialog (index) {
 
 			let dialogResult = dialog.showOpenDialog(remote.getCurrentWindow(), {properties: ['createDirectory', 'openDirectory', 'openFile']});
 			let volumes = this.state.volumes;
@@ -195,7 +195,7 @@ module.exports = function (context) {
 
 		}
 
-		remapVolumes() {
+		remapVolumes () {
 
 			let siteID = this.props.params.siteID;
 			let site = this.props.sites[siteID];
@@ -203,21 +203,21 @@ module.exports = function (context) {
 
 			this.state.volumes.forEach(volume => {
 
-				if ( !volume.source.trim() || !volume.dest.trim() ) {
+				if (!volume.source.trim() || !volume.dest.trim()) {
 					return errors.push('Empty source or destination.');
 				}
 
-				if ( volume.source.indexOf('/') !== 0 || volume.dest.indexOf('/') !== 0 ) {
+				if (volume.source.indexOf('/') !== 0 || volume.dest.indexOf('/') !== 0) {
 					return errors.push('Path does not start with slash.');
 				}
 
-				if ( formatHomePath(volume.source).indexOf('/Users') !== 0 && formatHomePath(volume.source).indexOf('/Volumes') !== 0 ) {
+				if (formatHomePath(volume.source).indexOf('/Users') !== 0 && formatHomePath(volume.source).indexOf('/Volumes') !== 0) {
 					return errors.push('Path does not start with /Users or /Volumes');
 				}
 
 			});
 
-			if ( errors.length ) {
+			if (errors.length) {
 
 				return dialog.showErrorBox('Invalid Paths Provided', `Sorry! There were invalid paths provided.
 				
@@ -321,7 +321,7 @@ There is no going back after this is done.`
 
 		}
 
-		formatSource(index) {
+		formatSource (index) {
 
 			let volumes = this.state.volumes;
 
@@ -333,65 +333,72 @@ There is no going back after this is done.`
 
 		}
 
-		render() {
+		render () {
 
 			return (
-				<div className="volumes-container">
+				<div className="VolumesContainer">
 					<link rel="stylesheet" href={this.stylesheetPath}/>
-					<table className="table-striped volumes-table">
-						<thead>
-						<tr>
-							<th>Host Source</th>
-							<th>Container Destination</th>
-							<th></th>
-						</tr>
-						</thead>
-						<tbody>
+
+					<ul className="TableList Form">
+						<li className="TableListRow">
+							<strong>Host Source</strong>
+							<strong>Container Destination</strong>
+						</li>
 						{
 							this.state.volumes.map((volume, index) => {
 								let ref = 'ref' in volume ? volume.ref : `${volume.source}:${volume.dest}`;
 
-								return <tr key={index}>
-									<td className="volumes-table-source"><input type="text" value={volume.source}
-									                                            placeholder="Host Source"
-									                                            ref={`${ref}-source`}
-									                                            onChange={this.volumeOnChange.bind(this, 'source', index)}
-									                                            onBlur={this.formatSource.bind(this, index)}/>
-										<span className="icon icon-folder"
-										      onClick={this.openFolderDialog.bind(this, index)}></span>
-									</td>
-									<td className="volumes-table-dest"><input type="text" value={volume.dest}
-									                                          placeholder="Container Destination"
-									                                          ref={`${ref}-dest`}
-									                                          onChange={this.volumeOnChange.bind(this, 'dest', index)}/>
-									</td>
-									<td>
-										<span className="icon icon-cancel-circled"
-										      onClick={this.removeVolume.bind(this, index)}></span>
-									</td>
-								</tr>
+								return <li className="TableListRow" key={index}>
+									<div>
+										<input type="text" value={volume.source} placeholder="Host Source"
+										       ref={`${ref}-source`}
+										       onChange={this.volumeOnChange.bind(this, 'source', index)}
+										       onBlur={this.formatSource.bind(this, index)} />
+
+										<span className="OpenFolder button --Inline" onClick={this.openFolderDialog.bind(this, index)}>
+											Browse
+										</span>
+									</div>
+
+									<div>
+										<input type="text" value={volume.dest} placeholder="Container Destination"
+										       ref={`${ref}-dest`}
+										       onChange={this.volumeOnChange.bind(this, 'dest', index)} />
+									</div>
+
+									<div>
+										<span className="RemoveVolume" onClick={this.removeVolume.bind(this, index)}>
+											<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8">
+												<path d="M7.71 6.29L5.41 4l2.3-2.29A1 1 0 0 0 6.29.29L4 2.59 1.71.29A1 1 0 1 0 .29 1.71L2.59 4 .29 6.29a1 1 0 1 0 1.42 1.42L4 5.41l2.29 2.3a1 1 0 0 0 1.42-1.42z"/>
+											</svg>
+										</span>
+									</div>
+								</li>
 							})
 						}
-						<tr>
-							<td className="volumes-table-source">
+						<li className="TableListRow">
+							<div>
 								<input type="text" id="add-host-source" placeholder="Add Host Source"
-								       onKeyDown={this.newVolumeKeyDown}/>
-								<span className="icon icon-folder"
-								      onClick={this.openFolderDialog.bind(this, 'new')}></span>
-							</td>
-							<td className="volumes-table-dest">
-								<input type="text" id="add-container-dest" placeholder="Add Container Destination"
-								       onKeyDown={this.newVolumeKeyDown}/>
-							</td>
-							<td>
-							</td>
-						</tr>
-						</tbody>
-					</table>
+								       onKeyDown={this.newVolumeKeyDown} />
 
-					<div className="form-actions">
-						<button className="btn btn-form btn-primary btn-right"
-						        disabled={!this.state.isChanged || this.state.provisioning || this.props.siteStatus != 'running'} onClick={this.remapVolumes}>
+								<span className="OpenFolder button --Inline" onClick={this.openFolderDialog.bind(this, 'new')}>
+									Browse
+								</span>
+							</div>
+
+							<div>
+								<input type="text" id="add-container-dest" placeholder="Add Container Destination"
+								       onKeyDown={this.newVolumeKeyDown} />
+							</div>
+
+							<div />
+						</li>
+					</ul>
+
+					<div className="Bottom">
+						<button className="--Green --Pill"
+						        disabled={!this.state.isChanged || this.state.provisioning || this.props.siteStatus != 'running'}
+						        onClick={this.remapVolumes}>
 							{this.state.provisioning ? 'Remapping Volumes...' : this.props.siteStatus == 'running' ? 'Remap Volumes' : 'Start Site to Remap Volumes'}
 						</button>
 					</div>
