@@ -27,6 +27,6 @@
   },
   "dependencies": {},
   "engines": {
-    "local-by-flywheel": "^1.1.0"
+    "local-by-flywheel": "^2.0.0"
   }
 }
