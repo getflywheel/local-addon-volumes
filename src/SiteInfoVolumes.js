@@ -283,14 +283,14 @@ There is no going back after this is done.`
 
 							site.container = container.id;
 
-							if ('duplicateImage' in site) {
-								if (typeof site.duplicateImage != 'string') {
-									site.duplicateImage.push(image.Id);
+							if ('clonedImage' in site) {
+								if (typeof site.clonedImage != 'string') {
+									site.clonedImage.push(image.Id);
 								} else {
-									site.duplicateImage = [site.duplicateImage, image.Id];
+									site.clonedImage = [site.clonedImage, image.Id];
 								}
 							} else {
-								site.duplicateImage = image.Id;
+								site.clonedImage = image.Id;
 							}
 
 							siteData.updateSite(siteID, site);
