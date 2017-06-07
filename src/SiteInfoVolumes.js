@@ -4,7 +4,6 @@ module.exports = function (context) {
 
 	const Component = context.React.Component;
 	const React = context.React;
-	const $ = context.jQuery;
 	const docker = context.docker;
 	const {remote} = context.electron;
 	const dialog = remote.dialog;
@@ -46,18 +45,8 @@ module.exports = function (context) {
 			let siteID = this.props.params.siteID;
 			let site = this.props.sites[siteID];
 
-			docker(`inspect ${site.container}`).then(stdout => {
+			docker().getContainer(site.container).inspect((err, containerInfo) => {
 
-				let parsedOutput;
-
-				try {
-					parsedOutput = JSON.parse(stdout);
-				} catch (e) {
-					console.error(e);
-					return false;
-				}
-
-				let containerInfo = parsedOutput[0];
 				let containerVolumes = [];
 
 				containerInfo.Mounts.forEach(mount => {
@@ -81,18 +70,8 @@ module.exports = function (context) {
 				let siteID = this.props.params.siteID;
 				let site = this.props.sites[siteID];
 
-				docker(`inspect ${site.container}`).then(stdout => {
+				docker().getContainer(site.container).inspect((err, containerInfo) => {
 
-					let parsedOutput;
-
-					try {
-						parsedOutput = JSON.parse(stdout);
-					} catch (e) {
-						console.error(e);
-						return false;
-					}
-
-					let containerInfo = parsedOutput[0];
 					let containerPorts = [];
 
 					try {
@@ -220,7 +199,6 @@ module.exports = function (context) {
 
 			let siteID = this.props.params.siteID;
 			let site = this.props.sites[siteID];
-			let imageID;
 			let errors = [];
 
 			this.state.volumes.forEach(volume => {
@@ -271,38 +249,48 @@ There is no going back after this is done.`
 
 			sendEvent('updateSiteStatus', siteID, 'provisioning');
 
-			docker(`commit ${site.container}`).then(stdout => {
+			docker().getContainer(site.container).commit().then(image => {
 
-				imageID = stdout.trim();
-
-				let portsStr = ``;
-				let volumeMappingsStr = ``;
 				let oldSiteContainer = site.container;
 
-				this.getPorts().then(ports => {
+				this.getPorts().then((ports) => {
 
-					ports.forEach(port => {
-						portsStr += ` -p ${port.hostPort}:${port.containerPort}`
-					});
+					docker().getContainer(site.container).kill().then(() => {
 
-					this.state.volumes.forEach(volume => {
-						volumeMappingsStr += ` -v "${formatHomePath(volume.source)}":"${volume.dest}"`
-					});
+						const exposedPorts = {};
+						const portBindings = {};
 
-					docker(`kill ${site.container}`).then(stdout => {
+						ports.forEach((port) => {
+							exposedPorts[`${port.containerPort}/tcp`] = {};
 
-						docker(`run -itd ${portsStr.trim()} ${volumeMappingsStr.trim()} ${imageID} ${this.state.path}`).then((stdout) => {
+							portBindings[`${port.containerPort}/tcp`] = [{
+								'HostPort': port.hostPort.toString(),
+							}];
+						});
 
-							site.container = stdout.trim();
+						docker().createContainer({
+							'Image': image.Id,
+							'Cmd': this.state.path,
+							'Tty': true,
+							'ExposedPorts': exposedPorts,
+							'HostConfig': {
+								'Binds': this.state.volumes.map((volume) => {
+									return `${formatHomePath(volume.source)}:${volume.dest}`;
+								}),
+								'PortBindings': portBindings,
+							},
+						}).then((container) => {
+
+							site.container = container.id;
 
 							if ('duplicateImage' in site) {
 								if (typeof site.duplicateImage != 'string') {
-									site.duplicateImage.push(imageID);
+									site.duplicateImage.push(image.Id);
 								} else {
-									site.duplicateImage = [site.duplicateImage, imageID];
+									site.duplicateImage = [site.duplicateImage, image.Id];
 								}
 							} else {
-								site.duplicateImage = imageID;
+								site.duplicateImage = image.Id;
 							}
 
 							siteData.updateSite(siteID, site);
@@ -321,7 +309,7 @@ There is no going back after this is done.`
 
 							});
 
-							docker(`rm ${oldSiteContainer}`);
+							docker().getContainer(oldSiteContainer).remove();
 
 						});
 
