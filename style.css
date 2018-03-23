@@ -10,8 +10,6 @@
 
 .VolumesContainer .TableListRow {
     line-height: 50px;
-    width: 100%;
-    display: block;
 }
 
 .VolumesContainer .TableList input {
@@ -32,7 +30,6 @@
     width: 8%;
     text-align: center;
     padding: 0;
-    float: right;
 }
 
 .VolumesContainer .TableListRow > div:nth-child(1) {
