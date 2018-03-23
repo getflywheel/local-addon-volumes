@@ -4,34 +4,42 @@
 }
 
 .VolumesContainer .TableList {
-    display: table;
+    display: flex;
+    flex-direction: column;
 }
 
 .VolumesContainer .TableListRow {
     line-height: 50px;
+    width: 100%;
+    display: block;
 }
 
 .VolumesContainer .TableList input {
     width: 100% !important;
 }
 
-.VolumesContainer .TableListRow div:nth-of-type(1),
-.VolumesContainer .TableListRow div:nth-of-type(2) {
-    width: 46%;
+.VolumesContainer .TableListRow > div {
+    float: left;
+}
+
+.VolumesContainer .TableListRow > div:nth-child(1),
+.VolumesContainer .TableListRow > div:nth-child(2) {
+    width: calc( 50% - 4% );
     padding: 0 0 0 30px;
 }
 
-.VolumesContainer .TableListRow div:last-of-type {
+.VolumesContainer .TableListRow > div:nth-child(3) {
     width: 8%;
     text-align: center;
     padding: 0;
+    float: right;
 }
 
-.VolumesContainer .TableListRow div:nth-of-type(1) {
+.VolumesContainer .TableListRow > div:nth-child(1) {
     position: relative;
 }
 
-.VolumesContainer .TableListRow div:nth-of-type(1) input {
+.VolumesContainer .TableListRow > div:nth-child(1) input {
     padding-right: 75px !important;
     text-overflow: ellipsis;
 }
