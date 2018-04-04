@@ -1,4 +1,5 @@
 const path = require('path');
+const os   = require('os');
 
 module.exports = function (context) {
 
@@ -50,7 +51,8 @@ module.exports = function (context) {
 				let containerVolumes = [];
 
 				containerInfo.Mounts.forEach(mount => {
-					containerVolumes.push({source: mount.Source, dest: mount.Destination});
+					let source = 'win32' === os.platform() ? path.resolve(mount.Source.replace('/c/', '/')) : mount.Source;
+					containerVolumes.push({source: source, dest: mount.Destination});
 				});
 
 
@@ -169,8 +171,14 @@ module.exports = function (context) {
 
 			if (dialogResult) {
 
-				if (dialogResult[0].indexOf('/Users') !== 0) {
-					return dialog.showErrorBox('Error', 'Sorry! You must provide a path in /Users.');
+				if ( 'win32' === os.platform() ) {
+					if (dialogResult[0].indexOf('C:\\Users') !== 0) {
+						return dialog.showErrorBox('Error', 'Sorry! You must provide a path in C:\\Users.');
+					}
+				} else {
+					if (dialogResult[0].indexOf('/Users') !== 0) {
+						return dialog.showErrorBox('Error', 'Sorry! You must provide a path in /Users.');
+					}
 				}
 
 				if (isNaN(index)) {
@@ -207,12 +215,18 @@ module.exports = function (context) {
 					return errors.push('Empty source or destination.');
 				}
 
-				if (volume.source.indexOf('/') !== 0 || volume.dest.indexOf('/') !== 0) {
-					return errors.push('Path does not start with slash.');
-				}
+				if ( 'win32' === os.platform() ) {
+					if (formatHomePath(volume.source).indexOf('C:\\Users') !== 0) {
+						return errors.push('Path does not start with C:\\Users');
+					}
+				} else {
+					if (volume.source.indexOf('/') !== 0 || volume.dest.indexOf('/') !== 0) {
+						return errors.push('Path does not start with slash.');
+					}
 
-				if (formatHomePath(volume.source).indexOf('/Users') !== 0 && formatHomePath(volume.source).indexOf('/Volumes') !== 0) {
-					return errors.push('Path does not start with /Users or /Volumes');
+					if (formatHomePath(volume.source).indexOf('/Users') !== 0 && formatHomePath(volume.source).indexOf('/Volumes') !== 0) {
+						return errors.push('Path does not start with /Users or /Volumes');
+					}
 				}
 
 			});
@@ -220,7 +234,7 @@ module.exports = function (context) {
 			if (errors.length) {
 
 				return dialog.showErrorBox('Invalid Paths Provided', `Sorry! There were invalid paths provided.
-				
+
 Please ensure that all paths have a valid source and destination.
 
 Also, all source paths must begin with either /Users or /Volumes.`);
@@ -233,7 +247,7 @@ Also, all source paths must begin with either /Users or /Volumes.`);
 				title: 'Confirm',
 				message: `Are you sure you want to remap the volumes for this site? There may be inadvertent effects if volumes aren't mapped correctly.
 
-Last but not least, make sure you have an up-to-date backup. 
+Last but not least, make sure you have an up-to-date backup.
 
 There is no going back after this is done.`
 			});
@@ -275,7 +289,8 @@ There is no going back after this is done.`
 							'ExposedPorts': exposedPorts,
 							'HostConfig': {
 								'Binds': this.state.volumes.map((volume) => {
-									return `${formatHomePath(volume.source)}:${volume.dest}`;
+									let source = this.formatDockerPath(volume.source);
+									return `${formatHomePath(source)}:${volume.dest}`;
 								}),
 								'PortBindings': portBindings,
 							},
@@ -333,6 +348,17 @@ There is no going back after this is done.`
 
 		}
 
+		formatDockerPath = (filepath) => {
+
+			if ( 'win32' !== os.platform() ) {
+				return filepath;
+			}
+
+			let {root} = path.parse(filepath);
+			return '/' + root.toLowerCase().replace(':', '').replace('\\', '/') + filepath.replace(root, '').replace(/\\/g, '/');
+
+		}
+
 		render () {
 
 			return (
@@ -351,9 +377,9 @@ There is no going back after this is done.`
 								return <li className="TableListRow" key={index}>
 									<div>
 										<input type="text" value={volume.source} placeholder="Host Source"
-										       ref={`${ref}-source`}
-										       onChange={this.volumeOnChange.bind(this, 'source', index)}
-										       onBlur={this.formatSource.bind(this, index)} />
+											   ref={`${ref}-source`}
+											   onChange={this.volumeOnChange.bind(this, 'source', index)}
+											   onBlur={this.formatSource.bind(this, index)} />
 
 										<span className="OpenFolder button --Inline" onClick={this.openFolderDialog.bind(this, index)}>
 											Browse
@@ -362,8 +388,8 @@ There is no going back after this is done.`
 
 									<div>
 										<input type="text" value={volume.dest} placeholder="Container Destination"
-										       ref={`${ref}-dest`}
-										       onChange={this.volumeOnChange.bind(this, 'dest', index)} />
+											   ref={`${ref}-dest`}
+											   onChange={this.volumeOnChange.bind(this, 'dest', index)} />
 									</div>
 
 									<div>
@@ -379,7 +405,7 @@ There is no going back after this is done.`
 						<li className="TableListRow">
 							<div>
 								<input type="text" id="add-host-source" placeholder="Add Host Source"
-								       onKeyDown={this.newVolumeKeyDown} />
+									   onKeyDown={this.newVolumeKeyDown} />
 
 								<span className="OpenFolder button --Inline" onClick={this.openFolderDialog.bind(this, 'new')}>
 									Browse
@@ -388,7 +414,7 @@ There is no going back after this is done.`
 
 							<div>
 								<input type="text" id="add-container-dest" placeholder="Add Container Destination"
-								       onKeyDown={this.newVolumeKeyDown} />
+									   onKeyDown={this.newVolumeKeyDown} />
 							</div>
 
 							<div />
@@ -397,8 +423,8 @@ There is no going back after this is done.`
 
 					<div className="Bottom">
 						<button className="--Green --Pill"
-						        disabled={!this.state.isChanged || this.state.provisioning || this.props.siteStatus != 'running'}
-						        onClick={this.remapVolumes}>
+								disabled={!this.state.isChanged || this.state.provisioning || this.props.siteStatus != 'running'}
+								onClick={this.remapVolumes}>
 							{this.state.provisioning ? 'Remapping Volumes...' : this.props.siteStatus == 'running' ? 'Remap Volumes' : 'Start Site to Remap Volumes'}
 						</button>
 					</div>
