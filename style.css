@@ -4,8 +4,11 @@
 }
 
 .VolumesContainer .TableList {
-    display: flex;
-    flex-direction: column;
+    display: table;
+}
+
+.VolumesContainer .TableListRow > * {
+    display: table-cell;
 }
 
 .VolumesContainer .TableListRow {
@@ -16,20 +19,15 @@
     width: 100% !important;
 }
 
-.VolumesContainer .TableListRow > div {
-    float: left;
-}
-
 .VolumesContainer .TableListRow > div:nth-child(1),
 .VolumesContainer .TableListRow > div:nth-child(2) {
-    width: calc( 50% - 4% );
+    width: 50%;
     padding: 0 0 0 30px;
 }
 
-.VolumesContainer .TableListRow > div:nth-child(3) {
-    width: 8%;
+.VolumesContainer .TableListRow > div:last-of-type {
     text-align: center;
-    padding: 0;
+    padding: 0 20px;
 }
 
 .VolumesContainer .TableListRow > div:nth-child(1) {
