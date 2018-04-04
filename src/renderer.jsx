@@ -2,7 +2,7 @@
 
 const path = require('path');
 
-module.exports = function(context) {
+module.exports = function (context) {
 
 	const hooks = context.hooks;
 	const React = context.React;
@@ -13,9 +13,9 @@ module.exports = function(context) {
 	hooks.addContent('routesSiteInfo', () => {
 		return <Route key="site-info-volumes" path="/site-info/:siteID/volumes" component={SiteInfoVolumes}/>
 	});
-	
-	hooks.addFilter('siteInfoMoreMenu', function(menu, site) {
-		
+
+	hooks.addFilter('siteInfoMoreMenu', function (menu, site) {
+
 		menu.push({
 			label: 'Volumes',
 			enabled: !this.context.router.isActive(`/site-info/${site.id}/volumes`),

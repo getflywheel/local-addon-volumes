@@ -1,5 +1,5 @@
 const path = require('path');
-const os   = require('os');
+const os = require('os');
 
 module.exports = function (context) {
 
@@ -171,7 +171,7 @@ module.exports = function (context) {
 
 			if (dialogResult) {
 
-				if ( 'win32' === os.platform() ) {
+				if ('win32' === os.platform()) {
 					if (dialogResult[0].indexOf('C:\\Users') !== 0) {
 						return dialog.showErrorBox('Error', 'Sorry! You must provide a path in C:\\Users.');
 					}
@@ -215,7 +215,7 @@ module.exports = function (context) {
 					return errors.push('Empty source or destination.');
 				}
 
-				if ( 'win32' === os.platform() ) {
+				if ('win32' === os.platform()) {
 					if (formatHomePath(volume.source).indexOf('C:\\Users') !== 0) {
 						return errors.push('Path does not start with C:\\Users');
 					}
@@ -350,7 +350,7 @@ There is no going back after this is done.`
 
 		formatDockerPath = (filepath) => {
 
-			if ( 'win32' !== os.platform() ) {
+			if ('win32' !== os.platform()) {
 				return filepath;
 			}
 
@@ -377,25 +377,27 @@ There is no going back after this is done.`
 								return <li className="TableListRow" key={index}>
 									<div>
 										<input type="text" value={volume.source} placeholder="Host Source"
-											   ref={`${ref}-source`}
-											   onChange={this.volumeOnChange.bind(this, 'source', index)}
-											   onBlur={this.formatSource.bind(this, index)} />
+										       ref={`${ref}-source`}
+										       onChange={this.volumeOnChange.bind(this, 'source', index)}
+										       onBlur={this.formatSource.bind(this, index)}/>
 
-										<span className="OpenFolder button --Inline" onClick={this.openFolderDialog.bind(this, index)}>
+										<span className="OpenFolder button --Inline"
+										      onClick={this.openFolderDialog.bind(this, index)}>
 											Browse
 										</span>
 									</div>
 
 									<div>
 										<input type="text" value={volume.dest} placeholder="Container Destination"
-											   ref={`${ref}-dest`}
-											   onChange={this.volumeOnChange.bind(this, 'dest', index)} />
+										       ref={`${ref}-dest`}
+										       onChange={this.volumeOnChange.bind(this, 'dest', index)}/>
 									</div>
 
 									<div>
 										<span className="RemoveVolume" onClick={this.removeVolume.bind(this, index)}>
 											<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8">
-												<path d="M7.71 6.29L5.41 4l2.3-2.29A1 1 0 0 0 6.29.29L4 2.59 1.71.29A1 1 0 1 0 .29 1.71L2.59 4 .29 6.29a1 1 0 1 0 1.42 1.42L4 5.41l2.29 2.3a1 1 0 0 0 1.42-1.42z"/>
+												<path
+													d="M7.71 6.29L5.41 4l2.3-2.29A1 1 0 0 0 6.29.29L4 2.59 1.71.29A1 1 0 1 0 .29 1.71L2.59 4 .29 6.29a1 1 0 1 0 1.42 1.42L4 5.41l2.29 2.3a1 1 0 0 0 1.42-1.42z"/>
 											</svg>
 										</span>
 									</div>
@@ -405,26 +407,27 @@ There is no going back after this is done.`
 						<li className="TableListRow">
 							<div>
 								<input type="text" id="add-host-source" placeholder="Add Host Source"
-									   onKeyDown={this.newVolumeKeyDown} />
+								       onKeyDown={this.newVolumeKeyDown}/>
 
-								<span className="OpenFolder button --Inline" onClick={this.openFolderDialog.bind(this, 'new')}>
+								<span className="OpenFolder button --Inline"
+								      onClick={this.openFolderDialog.bind(this, 'new')}>
 									Browse
 								</span>
 							</div>
 
 							<div>
 								<input type="text" id="add-container-dest" placeholder="Add Container Destination"
-									   onKeyDown={this.newVolumeKeyDown} />
+								       onKeyDown={this.newVolumeKeyDown}/>
 							</div>
 
-							<div />
+							<div/>
 						</li>
 					</ul>
 
 					<div className="Bottom">
 						<button className="--Green --Pill"
-								disabled={!this.state.isChanged || this.state.provisioning || this.props.siteStatus != 'running'}
-								onClick={this.remapVolumes}>
+						        disabled={!this.state.isChanged || this.state.provisioning || this.props.siteStatus != 'running'}
+						        onClick={this.remapVolumes}>
 							{this.state.provisioning ? 'Remapping Volumes...' : this.props.siteStatus == 'running' ? 'Remap Volumes' : 'Start Site to Remap Volumes'}
 						</button>
 					</div>
