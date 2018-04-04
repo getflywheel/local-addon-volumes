@@ -11,7 +11,7 @@ module.exports = function(context) {
 	const SiteInfoVolumes = require('./SiteInfoVolumes')(context);
 
 	hooks.addContent('routesSiteInfo', () => {
-		return <Route key="site-info-stats" path="/site-info/:siteID/volumes" component={SiteInfoVolumes}/>
+		return <Route key="site-info-volumes" path="/site-info/:siteID/volumes" component={SiteInfoVolumes}/>
 	});
 	
 	hooks.addFilter('siteInfoMoreMenu', function(menu, site) {
