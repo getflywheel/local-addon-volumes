@@ -7,6 +7,10 @@
     display: table;
 }
 
+.VolumesContainer .TableListRow > * {
+    display: table-cell;
+}
+
 .VolumesContainer .TableListRow {
     line-height: 50px;
 }
@@ -15,23 +19,22 @@
     width: 100% !important;
 }
 
-.VolumesContainer .TableListRow div:nth-of-type(1),
-.VolumesContainer .TableListRow div:nth-of-type(2) {
-    width: 46%;
+.VolumesContainer .TableListRow > div:nth-child(1),
+.VolumesContainer .TableListRow > div:nth-child(2) {
+    width: 50%;
     padding: 0 0 0 30px;
 }
 
-.VolumesContainer .TableListRow div:last-of-type {
-    width: 8%;
+.VolumesContainer .TableListRow > div:last-of-type {
     text-align: center;
-    padding: 0;
+    padding: 0 20px;
 }
 
-.VolumesContainer .TableListRow div:nth-of-type(1) {
+.VolumesContainer .TableListRow > div:nth-child(1) {
     position: relative;
 }
 
-.VolumesContainer .TableListRow div:nth-of-type(1) input {
+.VolumesContainer .TableListRow > div:nth-child(1) input {
     padding-right: 75px !important;
     text-overflow: ellipsis;
 }
