@@ -298,16 +298,19 @@ There is no going back after this is done.`
 
 							site.container = container.id;
 
-							if ('clonedImage' in site) {
-								if (typeof site.clonedImage != 'string') {
-									site.clonedImage.push(image.Id);
-								} else {
-									site.clonedImage = [site.clonedImage, image.Id];
-								}
-							} else {
-								site.clonedImage = image.Id;
-							}
+                            let clonedImages = [];
 
+                            if ('clonedImage' in site) {
+                            	if (typeof site.clonedImage === 'string' && site.clonedImage) {
+                                    clonedImages = [site.clonedImage];
+                                } else if (Array.isArray(site.clonedImage)) {
+                                    clonedImages = [...site.clonedImage];
+                                }
+                            }
+
+                            clonedImages.push(image.Id);
+
+                            site.clonedImage = clonedImages;
 							siteData.updateSite(siteID, site);
 
 							startSite(site).then(() => {
