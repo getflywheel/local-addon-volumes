@@ -1,0 +1,16 @@
+{
+  "root": true,
+  "extends": [
+    "@getflywheel/eslint-config-local"
+  ],
+  "rules": {
+    "import/no-unresolved": [
+      2,
+      {
+        "ignore": [
+          "^local"
+        ]
+      }
+    ]
+  }
+}

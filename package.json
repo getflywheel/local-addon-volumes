@@ -27,6 +27,11 @@
     "@babel/plugin-proposal-class-properties": "^7.2.0",
     "@babel/preset-env": "^7.2.0",
     "@babel/preset-react": "^7.0.0",
+    "@getflywheel/eslint-config-local": "1.0.4",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-react": "^7.11.1"
   },
   "dependencies": {},
   "engines": {
