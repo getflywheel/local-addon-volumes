@@ -19,7 +19,8 @@
   },
   "license": "MIT",
   "scripts": {
-    "build": "babel src -d lib"
+    "build": "babel src -d lib",
+    "prepare": "npm run build"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.0",
