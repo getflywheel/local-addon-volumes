@@ -1,16 +1,13 @@
-'use strict';
+import React from 'react';
+import SiteInfoVolumes from './SiteInfoVolumes';
 
-const path = require('path');
-
-module.exports = function (context) {
+export default function (context) {
 
 	const hooks = context.hooks;
-	const React = context.React;
 	const { Route } = context.ReactRouter;
 
-	const SiteInfoVolumes = require('./SiteInfoVolumes')(context);
-
-	hooks.addContent('routesSiteInfo', () => <Route key="site-info-volumes" path="/site-info/:siteID/volumes" component={SiteInfoVolumes}/>);
+	hooks.addContent('routesSiteInfo', () => <Route key="site-info-volumes" path="/site-info/:siteID/volumes"
+		render={(props) => <SiteInfoVolumes {...props} sendEvent={context.events.send} docker={context.docker.docker}/>} notifier={context.notifier} />);
 
 	hooks.addFilter('siteInfoMoreMenu', function (menu, site) {
 
@@ -26,4 +23,4 @@ module.exports = function (context) {
 
 	});
 
-};
+}

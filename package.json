@@ -34,7 +34,12 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-react": "^7.11.1"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@getflywheel/local-components": "^6.0.0"
+  },
+  "bundledDependencies": [
+    "@getflywheel/local-components"
+  ],
   "engines": {
     "local-by-flywheel": "^2.0.0"
   }
