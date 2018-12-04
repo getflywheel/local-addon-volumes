@@ -682,10 +682,10 @@
   resolved "https://registry.yarnpkg.com/@getflywheel/eslint-config-local/-/eslint-config-local-1.0.4.tgz#2fab6bb77b63ec123e831534f50e1d3c7c135571"
   integrity sha512-GvnhhT3XaNipDdVvHifWbKjoFpLAbezkKsYBGfDF4uG/9gWo5UX9YLANPlzSLRyvgBrX0+27S5Cu8YE/yM7kPg==
 
-"@getflywheel/local-components@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@getflywheel/local-components/-/local-components-6.0.0.tgz#65a5e7136be1a588a0695b54b896b59dd17d1c4a"
-  integrity sha512-XC49brKo0cdefXgFo4jwqdhZnMMMqOLiPAtepDs5w6Sp2Mz9YN4N+CpUHgYVj3cqRmpe9DKBfdvX2f3XxU6d1w==
+"@getflywheel/local-components@^6.0.1":
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/@getflywheel/local-components/-/local-components-6.0.1.tgz#9d9718f6dc62ce6c3046d096cde46b351324575d"
+  integrity sha512-6pDT9/OPjf5GaEumt77+UhvpePhS3D40k2FyTny85XhXsrImM/T9JyM9Zdqarutwj8nZYz07XQASyRw9Zj9fjQ==
   dependencies:
     classnames "^2.2.6"
     highlight.js "^9.13.1"
