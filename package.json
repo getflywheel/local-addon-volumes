@@ -8,6 +8,7 @@
   ],
   "bgColor": "#dfd6e8",
   "icon": "icon.svg",
+  "slug": "volumes",
   "description": "Mount additional directories for your sites in Local by Flywheel.",
   "renderer": "lib/renderer.js",
   "repository": {
