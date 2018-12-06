@@ -42,6 +42,6 @@
     "@getflywheel/local-components"
   ],
   "engines": {
-    "local-by-flywheel": "^2.0.0"
+    "local-by-flywheel": "^3.0.0"
   }
 }
