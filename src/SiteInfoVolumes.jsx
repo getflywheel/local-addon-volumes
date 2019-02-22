@@ -290,7 +290,7 @@ Also, all source paths must begin with either /Users or /Volumes.`);
 							dialog.showErrorBox('Error', 'Sorry! You must provide a path in C:\\Users.');
 
 							return false;
-						} else if (volume.source.indexOf('/Users') !== 0) {
+						} else if (os.platform() !== 'win32' && volume.source.indexOf('/Users') !== 0) {
 							dialog.showErrorBox('Error', 'Sorry! You must provide a path in /Users.');
 
 							return false;
